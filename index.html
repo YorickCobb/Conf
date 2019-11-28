@@ -1,0 +1,288 @@
+<html>
+	<head>
+		<!-- A-Frame -->
+		<script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+		
+		<!-- A-Frame Extras (needed to trigger GLTF animations) -->
+		<script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.min.js"></script>
+		
+		<!-- EnvironmentMapAssigner and dependencies -->
+		<script src="envmap/EnvironmentMapAssigner.js"></script>
+		<script src="envmap/HDRCubeTextureLoader.js"></script>
+		<script src="envmap/RGBELoader.js"></script>
+		<script src="envmap/PMREMGenerator.js"></script>
+		<script src="envmap/PMREMCubeUVPacker.js"></script>
+		
+		<!-- Floor reflection -->
+		<script src="reflect/GroundSceneReflector.js"></script>
+		<script src="reflect/aframe-mirror.js"></script>
+		
+		<!-- EmissionMapAssigner -->
+		<script src="js/EmissiveMapAssigner.js"></script>
+		
+		<!-- UVDoubler -->
+		<script src="js/UVDoubler.js"></script>
+		
+		<!-- A-Frame FPS in VR *-->
+		<script src="js/aframe-fps-counter-component.js"></script>
+		
+		<!-- Teleport Controls -->
+		<script src="https://rawgit.com/fernandojsg/aframe-teleport-controls/master/dist/aframe-teleport-controls.min.js"></script>
+		
+		<!-- A-Frame Sprite Component *-->
+		<!-- <script src="js/aframe-sprite-component.js"></script> -->
+		
+		<!-- A-Frame Outline Shader -->
+		<script src="outline/shader-outline.js"></script>
+		
+	</head>
+	<body>
+																																								<!-- Change this path to change environment -->
+		<a-scene stats light="defaultLightsEnabled: false" color-space="linear" renderer="highRefreshRate: true; sortObjects: true; foveationLevel: 3; antialias: true; alpha: false; colorManagement: true, gammaInput: true" envmap-assigner="filepath: assets/HDRIs/HDRconf/" background="color: white" >
+			<!-- Asset load -->
+			<a-assets>
+				<!-- Cubemap for glass reflections -->
+				<a-cubemap id="GlassReflect">
+					<img src="assets/cubemap/px.png">
+					<img src="assets/cubemap/nx.png">
+					<img src="assets/cubemap/py.png">
+					<img src="assets/cubemap/ny.png">
+					<img src="assets/cubemap/pz.png">
+					<img src="assets/cubemap/nz.png">
+				</a-cubemap>
+			
+				<!-- Untextured GlTF and .OBJ models -->
+				<a-asset-item id="joscars" src="assets/TestObjects/Joscars.obj"></a-asset-item>
+				
+				<!-- Environment Geometry -->
+				<a-asset-item id="ceilingGeo" src="assets/ConfRoom/Ceiling_TrimFlip.obj"></a-asset-item>
+				<a-asset-item id="curtainsGeo" src="assets/ConfRoom/Curtains_UV.obj"></a-asset-item>
+				<a-asset-item id="envGeo" src="assets/ConfRoom/Env.obj"></a-asset-item>
+				<a-asset-item id="floorGeo" src="assets/ConfRoom/Floor.obj"></a-asset-item>
+				<a-asset-item id="hallGeo" src="assets/ConfRoom/Hall.obj"></a-asset-item>
+				<a-asset-item id="neGeo" src="assets/ConfRoom/NEWall_blockslide.obj"></a-asset-item>
+				<a-asset-item id="swGeo" src="assets/ConfRoom/SWWall_flip.obj"></a-asset-item>
+				<img id="ceilingTex" src="assets/ConfRoom/Ceiling_4k.png"></img>
+				<img id="curtainsTex" src="assets/ConfRoom/Curtains_UV_4k.png"></img>
+				<img id="envTex" src="assets/ConfRoom/Env_1k.png"></img>
+				<img id="floorTex" src="assets/ConfRoom/Floor_4k.png"></img>
+				<img id="hallTex" src="assets/ConfRoom/Hall_1k.png"></img>
+				<img id="neTex" src="assets/ConfRoom/NEWall_4k.png"></img>
+				<img id="swTex" src="assets/ConfRoom/SWWall_4k.png"></img>
+				<img id="tvTex" src="assets/ConfRoom/TVtex.jpg"></img>
+				
+				<a-asset-item id="dglassGeo" src="assets/ConfRoom/DoorGlass.obj"></a-asset-item>
+				<a-asset-item id="tvGeo" src="assets/ConfRoom/TVScreen.obj"></a-asset-item>
+				<a-asset-item id="wglassGeo" src="assets/ConfRoom/WindowGlass.obj"></a-asset-item>
+			</a-assets>
+			
+			
+			<a-entity id="cameraRig" position="-0 0 0" movement-controls="speed: 0.1" rotation="0 0 0">
+				<!-- camera -->
+				<a-entity id="head"
+					camera
+					wasd-controls
+					look-controls
+					touch-controls
+					position="0 1.6 0">
+						<a-entity fps-counter="for90fps: false" position="-.3 0.1 -1" rotation="-30 0 0"></a-entity>
+					</a-entity>
+
+				<!-- hand controls -->
+				<a-entity
+					laser-controls="hand: right"
+					daydream-controls
+					gearvr-controls
+					oculus-go-controls
+					oculus-touch-controls
+					vive-controls
+					windows-motion-controls
+					raycaster="objects: .collidable"
+					envmap-assigner>
+					</a-entity>
+				<a-entity
+					laser-controls="hand: left"
+					daydream-controls
+					gearvr-controls
+					oculus-go-controls
+					oculus-touch-controls
+					vive-controls
+					windows-motion-controls
+					raycaster="objects: .collidable"
+					envmap-assigner>
+					</a-entity>
+
+				<!-- teleport controls -->
+				<a-entity
+					teleport-controls="cameraRig: #cameraRig; button: trigger; teleportOrigin: #head;"
+					daydream-controls
+					gearvr-controls
+					oculus-go-controls
+					oculus-touch-controls
+					vive-controls
+					windows-motion-controls>
+					</a-entity>
+			</a-entity>
+			
+			<a-entity id="mouseCursor"
+				cursor="rayOrigin: mouse"
+				raycaster="objects: .collidable">
+				</a-entity>
+			
+			<a-entity id="roomgeo">
+				<a-obj-model
+					src="#ceilingGeo"
+					material="shader: flat;
+						src: #ceilingTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#curtainsGeo"
+					material="shader: flat;
+						src: #curtainsTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#floorGeo"
+					material="shader: flat;
+						src: #floorTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#neGeo"
+					material="shader: flat;
+						src: #neTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#swGeo"
+					material="shader: flat;
+						src: #swTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#hallGeo"
+					material="shader: flat;
+						src: #hallTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#envGeo"
+					material="shader: flat;
+						src: #envTex;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#dglassGeo"
+					material="transparent: true;
+						opacity: .2;
+						blending: normal; 
+						color: white;
+						roughness: .2;
+						metalness: 1;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					envmap-assigner
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#wglassGeo"
+					material="transparent: true;
+						opacity: .2;
+						blending: normal; 
+						color: #ffffff;
+						roughness: .2;
+						metalness: 1;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					envmap-assigner
+					>
+					</a-obj-model>
+					
+				<a-obj-model
+					src="#tvGeo"
+					material="shader: standard;
+						color: #222;
+						emissive: #fff;
+						roughness: 0.2;
+						metalness: 1;"
+					position="0 0 0"
+					rotation="0 0 0"
+					scale=".304 .304 .304"
+					envmap-assigner
+					emitmap-assigner="map: #tvTex"
+					>
+					</a-obj-model>
+			</a-entity>
+				
+			<!-- OBJ -->
+			<a-obj-model
+				src="#joscars"
+				material="shader: standard;
+					color: #ffaa88;
+					roughness: 0.25;
+					metalness: 1;"
+				position="-2 0 -3.5"
+				rotation="0 35 0"
+				scale=".01 .01 .01"
+				envmap-assigner
+				>
+				</a-obj-model>
+			
+			<!-- Primitive -->
+			<a-sphere
+				material="shader: standard;
+					color: #ffffff;
+					roughness: 0;
+					metalness: 0;"
+				radius="0.3"
+				position="1.5 1.1 -0.7"
+				envmap-assigner
+				animation="
+					property: components.material.material.metalness;
+					to: 1;
+					dur: 2500;
+					dir: alternate;
+					easing: linear;
+					loop: true"
+				>
+				</a-sphere>
+			
+			
+			<!-- <a-light type="ambient" color="#ffffff" intensity="2"></a-light> -->
+			<!-- <a-light type="directional" color="#ffffff" intensity="1" position="0 2 0"></a-light> -->
+			
+		</a-scene>
+	</body>
+</html>
